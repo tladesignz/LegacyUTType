@@ -1,0 +1,16 @@
+PODS:
+  - LegacyUTType (0.1.0)
+
+DEPENDENCIES:
+  - LegacyUTType (from `../`)
+
+EXTERNAL SOURCES:
+  LegacyUTType:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  LegacyUTType: 0021b70b04885d5f9f6815ddb822afdf5bf7fa71
+
+PODFILE CHECKSUM: 48e6dda468e7991b95dc0d050af159b23d4131cc
+
+COCOAPODS: 1.11.3
