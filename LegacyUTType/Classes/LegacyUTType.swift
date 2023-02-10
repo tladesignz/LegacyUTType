@@ -11,10 +11,14 @@ import UniformTypeIdentifiers
 
 open class LegacyUTType {
 
+    public static let item = LegacyUTType(kUTTypeItem)
+    public static let data = LegacyUTType(kUTTypeData)
+    public static let audiovisualContent = LegacyUTType(kUTTypeAudiovisualContent)
     public static let movie = LegacyUTType(kUTTypeMovie)
     public static let audio = LegacyUTType(kUTTypeAudio)
     public static let video = LegacyUTType(kUTTypeVideo)
     public static let image = LegacyUTType(kUTTypeImage)
+    public static let jpeg = LegacyUTType(kUTTypeJPEG)
 
     // TODO: Add more predefined types.
 
