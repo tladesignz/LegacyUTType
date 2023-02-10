@@ -7,6 +7,7 @@
 
 import Foundation
 import MobileCoreServices
+import Photos
 import UniformTypeIdentifiers
 
 open class LegacyUTType {
@@ -52,6 +53,10 @@ open class LegacyUTType {
     @available(iOS 14.0, *)
     public convenience init(_ uttype: UTType) {
         self.init(uttype.identifier)
+    }
+
+    public convenience init(_ uti: AVFileType) {
+        self.init(uti.rawValue)
     }
 
     public convenience init(_ uti: String) {
