@@ -5,12 +5,21 @@
 //  Created by Benjamin Erhart on 10.02.23.
 //
 
-import Foundation
 import MobileCoreServices
 import Photos
 import UniformTypeIdentifiers
 
-open class LegacyUTType {
+/**
+ Brings the convenience of `UTType`s to iOS before version 14.
+ */
+open class LegacyUTType: Hashable, Codable, CustomStringConvertible {
+
+    public enum CodingKeys: CodingKey {
+        case uti
+    }
+
+
+    // MARK: Predefined Types
 
     public static let item = LegacyUTType(kUTTypeItem)
     public static let data = LegacyUTType(kUTTypeData)
@@ -24,6 +33,15 @@ open class LegacyUTType {
     // TODO: Add more predefined types.
 
 
+    // MARK: Equatable
+
+    public static func == (lhs: LegacyUTType, rhs: LegacyUTType) -> Bool {
+        UTTypeEqual(lhs.uti, rhs.uti)
+    }
+
+
+    // MARK: Public Properties
+
     public let uti: CFString
 
 
@@ -32,31 +50,73 @@ open class LegacyUTType {
     }
 
     open var preferredMIMEType: String? {
-        guard let mimeType = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue()
-        else {
-            return nil
-        }
-
-        return mimeType as String
+        UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue() as String?
     }
 
     open var preferredFilenameExtension: String? {
-        guard let ext = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassFilenameExtension)?.takeRetainedValue()
-        else {
-            return nil
+        UTTypeCopyPreferredTagWithClass(uti, kUTTagClassFilenameExtension)?.takeRetainedValue() as String?
+    }
+
+    open var tags: [String: [String]] {
+        var tags = [String: [String]]()
+
+        let append = { (tagClass: CFString) in
+            if let data = UTTypeCopyAllTagsWithClass(self.uti, tagClass)?.takeRetainedValue() {
+                var t = [String]()
+
+                for i in 0 ..< CFArrayGetCount(data) {
+                    t.append(unsafeBitCast(CFArrayGetValueAtIndex(data, i), to: CFString.self) as String)
+                }
+
+                tags[tagClass as String] = t
+            }
         }
 
-        return ext as String
-    }
+        append(kUTTagClassMIMEType)
 
+        append(kUTTagClassFilenameExtension)
+
+        return tags
+    }
 
     @available(iOS 14.0, *)
-    public convenience init(_ uttype: UTType) {
-        self.init(uttype.identifier)
+    open var utType: UTType? {
+        UTType(identifier)
     }
 
-    public convenience init(_ uti: AVFileType) {
-        self.init(uti.rawValue)
+    open var isDeclared: Bool {
+        UTTypeIsDeclared(uti)
+    }
+
+    open var isDynamic: Bool {
+        UTTypeIsDynamic(uti)
+    }
+
+    open var isPublic: Bool {
+        identifier.hasPrefix("public.")
+    }
+
+
+    // MARK: CustomStringConvertible
+
+    public var description: String {
+        identifier
+    }
+
+    public var localizedDescription: String? {
+        UTTypeCopyDescription(uti)?.takeRetainedValue() as String?
+    }
+
+
+    // MARK: Initializers
+
+    @available(iOS 14.0, *)
+    public convenience init(_ utType: UTType) {
+        self.init(utType.identifier)
+    }
+
+    public convenience init(_ avFileType: AVFileType) {
+        self.init(avFileType.rawValue)
     }
 
     public convenience init(_ uti: String) {
@@ -68,6 +128,33 @@ open class LegacyUTType {
     }
 
 
+    // MARK: Decodable
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        uti = try container.decode(String.self, forKey: .uti) as CFString
+    }
+
+
+    // MARK: Encodable
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(identifier, forKey: .uti)
+    }
+
+
+    // MARK: Hashable
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(uti)
+    }
+
+
+    // MARK: Public Methods
+
     open func conforms(to base: LegacyUTType) -> Bool {
         conforms(to: base.uti)
     }
@@ -78,7 +165,7 @@ open class LegacyUTType {
     }
 
     open func conforms(to base: String) -> Bool {
-        conforms(to: base as CFString?)
+        conforms(to: base as CFString)
     }
 
     open func conforms(to base: CFString?) -> Bool {
@@ -90,3 +177,17 @@ open class LegacyUTType {
     }
 }
 
+extension AVFileType {
+
+    public var legacy: LegacyUTType {
+        LegacyUTType(self)
+    }
+}
+
+@available(iOS 14.0, *)
+extension UTType {
+
+    public var legacy: LegacyUTType {
+        LegacyUTType(self)
+    }
+}
