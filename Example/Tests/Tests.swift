@@ -29,7 +29,7 @@ class Tests: XCTestCase {
 
         XCTAssertEqual(jpeg.preferredMIMEType, "image/jpeg")
 
-        XCTAssertEqual(jpeg.tags, ["public.mime-type": ["image/jpeg", "image/jpg"], "public.filename-extension": ["jpeg", "jpg", "jpe"]])
+        XCTAssertEqual(jpeg.tags, [.mimeType: ["image/jpeg", "image/jpg"], .filenameExtension: ["jpeg", "jpg", "jpe"]])
 
         XCTAssertTrue(video.isDeclared)
 
@@ -53,9 +53,9 @@ class Tests: XCTestCase {
     func testAVFileType() {
         XCTAssertEqual(AVFileType.jpg.legacy, jpeg)
 
-        XCTAssertEqual(LegacyUTType(AVFileType.jpg).identifier, "public.jpeg")
+        XCTAssertEqual(AVFileType.jpg.identifier, "public.jpeg")
 
-        XCTAssertTrue(AVFileType.jpg.legacy.conforms(to: .image))
+        XCTAssertTrue(AVFileType.jpg.conforms(to: .image))
     }
 
     @available(iOS 14.0, *)
@@ -66,10 +66,10 @@ class Tests: XCTestCase {
 
         XCTAssertEqual(UTType.video.legacy, video)
 
-        var tags = [String: [String]]()
+        var tags = [LegacyUTTagClass: [String]]()
 
         for t in UTType.video.tags {
-            tags[t.key.rawValue] = t.value
+            tags[LegacyUTTagClass(rawValue: t.key.rawValue)] = t.value
         }
 
         let uttJpeg = UTType.jpeg
