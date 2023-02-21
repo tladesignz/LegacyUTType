@@ -11,8 +11,13 @@ Pod::Spec.new do |s|
   s.version          = '0.1.0'
   s.summary          = 'UTType before iOS 14'
   s.description      = <<-DESC
-Brings the convenience of `UTType`s to iOS before version 14.
-                       DESC
+Brings the convenience of `UTType`s to Swift on iOS before version 14.
+
+It provides `LegacyUTType` and tries to unify and make interchangable
+`LegacyUTType`, `AVFileType`, `UTType` and `UTTypeReference` as much
+as possible, so you can upgrade easily to `UTType` in case you drop
+support for older iOS versions later.
+DESC
 
   s.homepage         = 'https://github.com/tladesignz/LegacyUTType'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
@@ -21,6 +26,8 @@ Brings the convenience of `UTType`s to iOS before version 14.
   s.social_media_url = 'https://twitter.com/tladesignz'
 
   s.ios.deployment_target = '11.0'
+
+  s.swift_versions = '5.0'
 
   s.source_files = 'LegacyUTType/Classes/**/*'
 end
